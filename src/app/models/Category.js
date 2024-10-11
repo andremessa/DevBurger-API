@@ -12,6 +12,8 @@ class Category extends Model {
 				sequelize,
 			},
 		);
+		// biome-ignore lint/complexity/noThisInStatic: <explanation>
+		return this;
 	}
 }
 
