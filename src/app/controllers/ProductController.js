@@ -1,6 +1,7 @@
 import * as Yup from 'yup';
 import Product from '../models/Product';
 import Category from '../models/Category';
+import User from '../models/User';
 
 class ProductController {
 	async store(request, response) {
@@ -14,6 +15,12 @@ class ProductController {
 			schema.validateSync(request.body, { abortEarly: false });
 		} catch (err) {
 			return response.status(400).json({ erros: err.errors });
+		}
+
+		const { admin: isAdmin } = await User.findByPk(request.userId);
+
+		if (!isAdmin) {
+			return response.status(401).json();
 		}
 
 		const { filename: path } = request.file;
@@ -31,12 +38,13 @@ class ProductController {
 
 	async index(request, response) {
 		const products = await Product.findAll({
-			include: [{
-				model: Category,
-				as: 'category',
-				attributes: ['id', 'name']
-			}
-		]
+			include: [
+				{
+					model: Category,
+					as: 'category',
+					attributes: ['id', 'name'],
+				},
+			],
 		});
 
 		return response.json(products);
